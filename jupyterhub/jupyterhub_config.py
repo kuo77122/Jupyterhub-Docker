@@ -1,4 +1,5 @@
 import os
+import sys
 from oauthenticator.github import GitHubOAuthenticator
 
 c.JupyterHub.authenticator_class = GitHubOAuthenticator
@@ -15,3 +16,5 @@ c.JupyterHub.services = [
         'command': [sys.executable, 'cull_idle_servers.py', '--timeout=3600'],
     }
 ]
+# Redirect to JupyterLab, instead of the plain Jupyter notebook
+c.Spawner.default_url = '/lab'
