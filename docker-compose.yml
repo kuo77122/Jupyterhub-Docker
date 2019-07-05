@@ -2,24 +2,27 @@ version: '3'
 
 services:
   jupyterhub:
+    restart: always
     build: 
       context: ./jupyterhub
       dockerfile: ./Dockerfile
     container_name: jupyterhub_hub   # The service will use this container name.
     volumes:                         # Give access to Docker socket.
       - /var/run/docker.sock:/var/run/docker.sock
+      - jupyterhub_data:/srv/jupyterhub
     environment:                     # Env variables passed to the Hub process.
       DOCKER_JUPYTER_IMAGE: jupyterlab_img
-      DOCKER_NETWORK_NAME: ${COMPOSE_PROJECT_NAME}_default
+      DOCKER_NETWORK_NAME: ${DOCKER_NETWORK_NAME}
       HUB_IP: jupyterhub_hub
     networks:
       - web
+    env_file:
+      - secrets/oauth.env
     labels:                          # Traefik configuration.
       - "traefik.docker.network=web"
       - "traefik.enable=true"
       - "traefik.basic.frontend.rule=Host:jupyterhub.nanpower.me"
       - "traefik.basic.protocol=http"
-
   jupyterlab:
     build: jupyterlab
     image: jupyterlab_img
@@ -28,3 +31,6 @@ services:
 networks:
   web:
     external: true
+
+volumes:
+  jupyterhub_data:
